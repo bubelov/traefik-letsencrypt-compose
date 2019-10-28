@@ -25,7 +25,7 @@ nano traefik-letsencrypt-compose/.env
 DOMAIN=example.local
 EMAIL=admin@example.local
 TRAEFIK_USER=admin
-TRAEFIK_PASSWORD_HASH=$2y$10$zi5n43jq9S63gBqSJwHTH.nCai2vB0SW/ABPGg2jSGmJBVRo0A.ni
+TRAEFIK_PASSWORD_HASH=$2y$10$zi5n43jq9S63gBqSJwHTH.nCai2vB0SW/ABPGg2jSGmJBVRo0A.ni # admin
 
 # Uncomment to get a trusted certificate in production
 # HTPPS_CERTIFICATE_RESOLVER=letsencrypt

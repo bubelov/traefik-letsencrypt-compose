@@ -1,0 +1,62 @@
+version: "3.7"
+services:
+
+  traefik:
+    image: traefik:v2.0
+    container_name: traefik
+    command:
+      - "--log.level=DEBUG"
+
+      - "--entrypoints.http.address=:80"
+      - "--entrypoints.https.address=:443"
+
+      - "--providers.docker=true"
+
+      - "--api=true"
+
+      - "--certificatesresolvers.letsencrypt.acme.httpchallenge=true"
+      - "--certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=http"
+      - "--certificatesresolvers.letsencrypt.acme.email=${EMAIL}"
+      - "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
+    labels:
+      - traefik.http.routers.traefik-http.rule=Host(`traefik.${DOMAIN}`)
+      - traefik.http.routers.traefik-http.entrypoints=http
+      - traefik.http.routers.traefik-http.middlewares=redirect
+
+      - traefik.http.routers.traefik-https.rule=Host(`traefik.${DOMAIN}`)
+      - traefik.http.routers.traefik-https.entrypoints=https
+      - traefik.http.routers.traefik-https.middlewares=auth
+      - traefik.http.routers.traefik-https.service=api@internal
+      - traefik.http.routers.traefik-https.tls=true
+      - traefik.http.routers.traefik-https.tls.certresolver=${HTPPS_CERTIFICATE_RESOLVER}
+
+      - traefik.http.middlewares.redirect.redirectscheme.scheme=https
+      - traefik.http.middlewares.auth.basicauth.users=${TRAEFIK_USER}:${TRAEFIK_PASSWORD_HASH}
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - type: volume
+        source: letsencrypt
+        target: /letsencrypt
+      - type: bind
+        source: /var/run/docker.sock
+        target: /var/run/docker.sock
+        read_only: true
+    environment:
+      DOMAIN: $DOMAIN
+
+  whoami:
+    image: containous/whoami
+    container_name: whoami
+    labels:
+      - traefik.http.routers.http.rule=Host(`${DOMAIN}`)
+      - traefik.http.routers.http.entrypoints=http
+      - traefik.http.routers.http.middlewares=redirect
+      - traefik.http.routers.https.rule=Host(`${DOMAIN}`)
+      - traefik.http.routers.https.entrypoints=https
+      - traefik.http.routers.https.tls=true
+      - traefik.http.routers.https.tls.certresolver=${HTPPS_CERTIFICATE_RESOLVER}
+
+volumes:
+  letsencrypt:

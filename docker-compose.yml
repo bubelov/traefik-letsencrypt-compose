@@ -28,7 +28,7 @@ services:
       - traefik.http.routers.traefik-https.middlewares=auth
       - traefik.http.routers.traefik-https.service=api@internal
       - traefik.http.routers.traefik-https.tls=true
-      - traefik.http.routers.traefik-https.tls.certresolver=${HTPPS_CERTIFICATE_RESOLVER}
+      - traefik.http.routers.traefik-https.tls.certresolver=letsencrypt
 
       - traefik.http.middlewares.redirect.redirectscheme.scheme=https
       - traefik.http.middlewares.auth.basicauth.users=${TRAEFIK_USER}:${TRAEFIK_PASSWORD_HASH}

@@ -2,7 +2,7 @@ version: "3.7"
 services:
 
   traefik:
-    image: traefik:v2.0
+    image: traefik:2.2.0
     container_name: traefik
     command:
       - "--log.level=DEBUG"
@@ -28,7 +28,7 @@ services:
       - traefik.http.routers.traefik-https.middlewares=auth
       - traefik.http.routers.traefik-https.service=api@internal
       - traefik.http.routers.traefik-https.tls=true
-      - traefik.http.routers.traefik-https.tls.certresolver=letsencrypt
+      #- traefik.http.routers.traefik-https.tls.certresolver=letsencrypt
 
       - traefik.http.middlewares.redirect.redirectscheme.scheme=https
       - traefik.http.middlewares.auth.basicauth.users=${TRAEFIK_USER}:${TRAEFIK_PASSWORD_HASH}
@@ -54,7 +54,7 @@ services:
       - traefik.http.routers.https.rule=Host(`${DOMAIN}`)
       - traefik.http.routers.https.entrypoints=https
       - traefik.http.routers.https.tls=true
-      - traefik.http.routers.https.tls.certresolver=${HTPPS_CERTIFICATE_RESOLVER}
+      #- traefik.http.routers.https.tls.certresolver=letsencrypt
 
 volumes:
   letsencrypt:

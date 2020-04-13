@@ -70,3 +70,9 @@ Let's say you have a domain `example.com` and it's DNS records point to your pro
 ```bash
 DOMAIN=example.com
 ```
+
+You should also uncomment the following lines inside `docker-compose.yml` in order to use Let’s Encrypt to generate a trusted certificate instead of self-signed one that we used for local deployment:
+
+```bash
+#traefik.http.routers.traefik-https.tls.certresolver=letsencrypt
+```

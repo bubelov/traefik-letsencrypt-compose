@@ -3,21 +3,20 @@ services:
 
   traefik:
     image: traefik:2.2.0
-    container_name: traefik
     command:
-      - "--log.level=DEBUG"
+      --log.level=DEBUG
 
-      - "--entrypoints.http.address=:80"
-      - "--entrypoints.https.address=:443"
+      --entrypoints.http.address=:80
+      --entrypoints.https.address=:443
 
-      - "--providers.docker=true"
+      --providers.docker=true
 
-      - "--api=true"
+      --api=true
 
-      - "--certificatesresolvers.letsencrypt.acme.httpchallenge=true"
-      - "--certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=http"
-      - "--certificatesresolvers.letsencrypt.acme.email=${EMAIL}"
-      - "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
+      --certificatesresolvers.letsencrypt.acme.httpchallenge=true
+      --certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=http
+      --certificatesresolvers.letsencrypt.acme.email=${EMAIL}
+      --certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json
     labels:
       - traefik.http.routers.traefik-http.rule=Host(`traefik.${DOMAIN}`)
       - traefik.http.routers.traefik-http.entrypoints=http
@@ -36,17 +35,11 @@ services:
       - 80:80
       - 443:443
     volumes:
-      - type: volume
-        source: letsencrypt
-        target: /letsencrypt
-      - type: bind
-        source: /var/run/docker.sock
-        target: /var/run/docker.sock
-        read_only: true
+      - .data/letsencrypt:/letsencrypt
+      - /var/run/docker.sock:/var/run/docker.sock:ro
 
   whoami:
     image: containous/whoami
-    container_name: whoami
     labels:
       - traefik.http.routers.http.rule=Host(`${DOMAIN}`)
       - traefik.http.routers.http.entrypoints=http
@@ -55,6 +48,3 @@ services:
       - traefik.http.routers.https.entrypoints=https
       - traefik.http.routers.https.tls=true
       #- traefik.http.routers.https.tls.certresolver=letsencrypt
-
-volumes:
-  letsencrypt:

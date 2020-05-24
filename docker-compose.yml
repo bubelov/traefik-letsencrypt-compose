@@ -20,18 +20,21 @@ services:
       --certificatesresolvers.letsencrypt.acme.email=${EMAIL}
       --certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json
     labels:
-      - traefik.http.routers.traefik-http.rule=Host(`traefik.${DOMAIN}`)
-      - traefik.http.routers.traefik-http.entrypoints=http
-      - traefik.http.routers.traefik-http.middlewares=redirect
+      # Redirect all HTTP traffic to HTTPS
+      - traefik.http.routers.to-https.rule=HostRegexp(`{host:.+}`)
+      - traefik.http.routers.to-https.entrypoints=http
+      - traefik.http.routers.to-https.middlewares=to-https
 
-      - traefik.http.routers.traefik-https.rule=Host(`traefik.${DOMAIN}`)
-      - traefik.http.routers.traefik-https.entrypoints=https
-      - traefik.http.routers.traefik-https.middlewares=auth
-      - traefik.http.routers.traefik-https.service=api@internal
-      - traefik.http.routers.traefik-https.tls=true
+      - traefik.http.routers.traefik.rule=Host(`traefik.${DOMAIN}`)
+      - traefik.http.routers.traefik.entrypoints=https
+      - traefik.http.routers.traefik.middlewares=auth
+      - traefik.http.routers.traefik.service=api@internal
+      - traefik.http.routers.traefik.tls=true
+      # Uncomment fetch Let's Encrypt certificates
+      # Make sure you set up DNS records and they point to your IP
       #- traefik.http.routers.traefik-https.tls.certresolver=letsencrypt
 
-      - traefik.http.middlewares.redirect.redirectscheme.scheme=https
+      - traefik.http.middlewares.to-https.redirectscheme.scheme=https
       - traefik.http.middlewares.auth.basicauth.users=${TRAEFIK_USER}:${TRAEFIK_PASSWORD_HASH}
     ports:
       - 80:80
@@ -43,10 +46,9 @@ services:
   whoami:
     image: containous/whoami
     labels:
-      - traefik.http.routers.http.rule=Host(`${DOMAIN}`)
-      - traefik.http.routers.http.entrypoints=http
-      - traefik.http.routers.http.middlewares=redirect
       - traefik.http.routers.https.rule=Host(`${DOMAIN}`)
       - traefik.http.routers.https.entrypoints=https
       - traefik.http.routers.https.tls=true
-      #- traefik.http.routers.https.tls.certresolver=letsencrypt
+      # Uncomment fetch Let's Encrypt certificates
+      # Make sure you set up DNS records and they point to your IP
+      #- traefik.http.routers.traefik-https.tls.certresolver=letsencrypt

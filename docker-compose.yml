@@ -4,7 +4,9 @@ services:
   traefik:
     image: traefik:chevrotin
     command:
-      --log.level=DEBUG
+      # Try to enable this if something isn't working. Chances are, Traefik will tell you why
+      # Be careful on production as it exposes the traffic you might not want to expose
+      #--log.level=DEBUG
 
       --entrypoints.http.address=:80
       --entrypoints.https.address=:443

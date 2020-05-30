@@ -1,8 +1,18 @@
 version: "3.7"
+# Before getting started, make sure to set variables in .env file.
+# They are used like ${THIS}
+# Note: It can take a min for SSL to setup after each container launch; give it a min before refreshing.
 services:
 
   traefik:
     image: traefik:chevrotin
+    container_name: traefik
+    restart: always
+    environment: 
+      # Variables (vars) depend on your DNS hosting provider.
+      # See https://docs.traefik.io/https/acme/#providers to determine which vars you need
+      # Set the vars in .env, and then make them available to docker like this (DigitalOcean example)
+      - DO_AUTH_TOKEN=${DO_AUTH_TOKEN}
     command:
       # Try to enable this if something isn't working. Chances are, Traefik will tell you why
       # Be careful on production as it exposes the traffic you might not want to expose
@@ -12,43 +22,41 @@ services:
       --entrypoints.https.address=:443
 
       --providers.docker=true
-
       --api=true
 
-      --certificatesresolvers.letsencrypt.acme.httpchallenge=true
-      --certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=http
+      --certificatesresolvers.letsencrypt.acme.dnschallenge=true
+      --certificatesresolvers.letsencrypt.acme.dnschallenge.provider=${PROVIDER}
       --certificatesresolvers.letsencrypt.acme.email=${EMAIL}
       --certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json
     labels:
-      # Redirect all HTTP traffic to HTTPS
-      - traefik.http.routers.to-https.rule=HostRegexp(`{host:.+}`)
-      - traefik.http.routers.to-https.entrypoints=http
-      - traefik.http.routers.to-https.middlewares=to-https
-
+      # Make the Traefik dashboard available at traefik.domain
       - traefik.http.routers.traefik.rule=Host(`traefik.${DOMAIN}`)
       - traefik.http.routers.traefik.entrypoints=https
-      - traefik.http.routers.traefik.middlewares=auth
       - traefik.http.routers.traefik.service=api@internal
-      - traefik.http.routers.traefik.tls=true
-      # Uncomment fetch Let's Encrypt certificates
-      # Make sure you set up DNS records and they point to your IP
-      #- traefik.http.routers.traefik-https.tls.certresolver=letsencrypt
+      - traefik.http.routers.traefik.tls.certresolver=letsencrypt
 
-      - traefik.http.middlewares.to-https.redirectscheme.scheme=https
+      # Add Basic Auth
+      # Optional. Recommend doing this after everything else is working well
+      # Generate with 'htpasswd -nBC 10 admin' // See *2
+      - traefik.http.routers.traefik.middlewares=auth
       - traefik.http.middlewares.auth.basicauth.users=${TRAEFIK_USER}:${TRAEFIK_PASSWORD_HASH}
     ports:
       - 80:80
       - 443:443
     volumes:
-      - .data/letsencrypt:/letsencrypt
       - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./letsencrypt:/letsencrypt #This will be auto-generated, no need to create
 
   whoami:
     image: containous/whoami
+    container_name: whoami
+    restart: always
     labels:
-      - traefik.http.routers.https.rule=Host(`${DOMAIN}`)
-      - traefik.http.routers.https.entrypoints=https
-      - traefik.http.routers.https.tls=true
-      # Uncomment fetch Let's Encrypt certificates
-      # Make sure you set up DNS records and they point to your IP
-      #- traefik.http.routers.traefik-https.tls.certresolver=letsencrypt
+      # Make the whoami example available at whoami.domain
+      - traefik.http.routers.whoami.rule=Host(`whoami.${DOMAIN}`)
+      - traefik.http.routers.whoami.entrypoints=https
+      - traefik.http.routers.whoami.tls.certresolver=letsencrypt
+
+# Thanks
+# *1 https://github.com/bubelov/traefik-letsencrypt-compose/blob/master/docker-compose.yml
+# *2 https://bubelov.com/blog/basic-auth-reverse-proxy/

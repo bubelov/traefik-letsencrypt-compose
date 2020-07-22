@@ -4,8 +4,9 @@ services:
   traefik:
     image: traefik:chevrotin
     command:
-      # Try to enable this if something isn't working. Chances are, Traefik will tell you why
-      # Be careful on production as it exposes the traffic you might not want to expose
+      # Try to enable this if something isn't working. 
+      # Chances are, Traefik will tell you why.
+      # Be careful in production as it exposes the traffic you might not want to expose.
       #--log.level=DEBUG
 
       --entrypoints.http.address=:80
@@ -30,8 +31,8 @@ services:
       - traefik.http.routers.traefik.middlewares=auth
       - traefik.http.routers.traefik.service=api@internal
       - traefik.http.routers.traefik.tls=true
-      # Uncomment fetch Let's Encrypt certificates
-      # Make sure you set up DNS records and they point to your IP
+      # Uncomment to fetch Let's Encrypt certificates.
+      # Make sure you set up DNS records and they point to your IP.
       #- traefik.http.routers.traefik-https.tls.certresolver=letsencrypt
 
       - traefik.http.middlewares.to-https.redirectscheme.scheme=https
@@ -49,6 +50,6 @@ services:
       - traefik.http.routers.https.rule=Host(`${DOMAIN}`)
       - traefik.http.routers.https.entrypoints=https
       - traefik.http.routers.https.tls=true
-      # Uncomment fetch Let's Encrypt certificates
-      # Make sure you set up DNS records and they point to your IP
+      # Uncomment to fetch Let's Encrypt certificates.
+      # Make sure you set up DNS records and they point to your IP.
       #- traefik.http.routers.traefik-https.tls.certresolver=letsencrypt

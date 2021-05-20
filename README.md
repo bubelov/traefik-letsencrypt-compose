@@ -1,12 +1,20 @@
 # Traefik + Let’s Encrypt + Docker Compose 
 
-## Testing on Local PC
+This guide shows you how to deploy your containers behind Traefik reverse-proxy. It will obtain and refresh HTTPS certificates automatically and it comes with password-protected Traefik dashboard. 
+
+## Testing on Your Local Computer
 
 ### Step 1: Make Sure You Have Required Dependencies
 
 - Git
 - Docker
 - Docker Compose
+
+#### Example Installation on Debian-based Systems:
+
+```
+sudo apt install git docker.io docker-compose
+```
 
 ### Step 2: Clone the Repository
 
@@ -51,7 +59,7 @@ You can paste the username into the `TRAEFIK_USER` environment variable. The oth
 ### Step 5: Launch Your Deployment
 
 ```bash
-docker-compose up -d
+sudo docker-compose up -d
 ```
 
 ### Step 6: Test Your Deployment

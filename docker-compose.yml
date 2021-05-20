@@ -2,7 +2,7 @@ version: "3.7"
 services:
 
   traefik:
-    image: traefik:chevrotin
+    image: traefik:2.4.8
     command:
       # Try to enable this if something isn't working. 
       # Chances are, Traefik will tell you why.
@@ -31,9 +31,7 @@ services:
       - traefik.http.routers.traefik.middlewares=auth
       - traefik.http.routers.traefik.service=api@internal
       - traefik.http.routers.traefik.tls=true
-      # Uncomment to fetch Let's Encrypt certificates.
-      # Make sure you set up DNS records and they point to your IP.
-      #- traefik.http.routers.traefik-https.tls.certresolver=letsencrypt
+      - traefik.http.routers.traefik-https.tls.certresolver=${CERT_RESOLVER}
 
       - traefik.http.middlewares.to-https.redirectscheme.scheme=https
       - traefik.http.middlewares.auth.basicauth.users=${TRAEFIK_USER}:${TRAEFIK_PASSWORD_HASH}
@@ -41,7 +39,7 @@ services:
       - 80:80
       - 443:443
     volumes:
-      - .data/letsencrypt:/letsencrypt
+      - ./data/letsencrypt:/letsencrypt
       - /var/run/docker.sock:/var/run/docker.sock:ro
 
   whoami:
@@ -50,6 +48,4 @@ services:
       - traefik.http.routers.https.rule=Host(`${DOMAIN}`)
       - traefik.http.routers.https.entrypoints=https
       - traefik.http.routers.https.tls=true
-      # Uncomment to fetch Let's Encrypt certificates.
-      # Make sure you set up DNS records and they point to your IP.
-      #- traefik.http.routers.traefik-https.tls.certresolver=letsencrypt
+      - traefik.http.routers.https.tls.certresolver=${CERT_RESOLVER}

@@ -1,4 +1,4 @@
-# Traefik 2 + Let’s Encrypt + Docker Compose 
+# Traefik + Let’s Encrypt + Docker Compose 
 
 ## Testing on Local PC
 

@@ -81,7 +81,7 @@ Let's say you have a domain `example.com` and it's DNS records point to your pro
 ```bash
 DOMAIN=example.com
 EMAIL=your@email.com
-CERT_RESOLVER=traefik
+CERT_RESOLVER=letsencrypt
 ```
 
 Setting correct email is important because it allows Let’s Encrypt to contact you in case there are any present and future issues with your certificates.

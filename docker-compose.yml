@@ -9,17 +9,20 @@ services:
       # Be careful in production as it exposes the traffic you might not want to expose.
       #--log.level=DEBUG
 
-      --entrypoints.http.address=:80
-      --entrypoints.https.address=:443
+      - --entrypoints.http.address=:80
+      - --entrypoints.https.address=:443
 
-      --providers.docker=true
+      - --providers.docker=true
 
-      --api=true
+      - --api=true
 
-      --certificatesresolvers.letsencrypt.acme.httpchallenge=true
-      --certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=http
-      --certificatesresolvers.letsencrypt.acme.email=${EMAIL}
-      --certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json
+      # LetsEncrypt Staging Server - uncomment when testing
+      # - --certificatesResolvers.letsencrypt.acme.caServer=https://acme-staging-v02.api.letsencrypt.org/directory
+
+      - --certificatesresolvers.letsencrypt.acme.httpchallenge=true
+      - --certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=http
+      - --certificatesresolvers.letsencrypt.acme.email=${EMAIL}
+      - --certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json
     labels:
       # Redirect all HTTP traffic to HTTPS
       - traefik.http.routers.to-https.rule=HostRegexp(`{host:.+}`)
@@ -31,7 +34,7 @@ services:
       - traefik.http.routers.traefik.middlewares=auth
       - traefik.http.routers.traefik.service=api@internal
       - traefik.http.routers.traefik.tls=true
-      - traefik.http.routers.traefik-https.tls.certresolver=${CERT_RESOLVER}
+      - traefik.http.routers.traefik.tls.certresolver=${CERT_RESOLVER}
 
       - traefik.http.middlewares.to-https.redirectscheme.scheme=https
       - traefik.http.middlewares.auth.basicauth.users=${TRAEFIK_USER}:${TRAEFIK_PASSWORD_HASH}
